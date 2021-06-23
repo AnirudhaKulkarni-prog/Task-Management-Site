@@ -1,17 +1,12 @@
+
+const AllData=[];
 const taskContainer=document.querySelector(".task_container");
 console.log(taskContainer);
 
-function addData()
-{
-    const taskData={
-        id:`${Date.now()}`,
-        imageurl:document.getElementById("imageurl").value,
-        tasktitle:document.getElementById("tasktitle").value,
-        tasktype:document.getElementById("tasktype").value,
-        taskdescription:document.getElementById("taskdescription").value,
-    };
 
-    const newCard=`
+function generateCard(taskData)
+{
+  const newCard=`
     <div class="col-md-6 col-lg-4" id=${taskData.id}>
               <div class="card">
                 <div class="card-header d-flex justify-content-end gap-2">
@@ -31,6 +26,41 @@ function addData()
               </div>
             </div>`
 
-        taskContainer.insertAdjacentHTML("beforeend",newCard);
+          return newCard;
+
+}
+
+function loadInitialCardData()
+{
+  const getCardData=localStorage.getItem("Tasky");
+
+  const {cards}=JSON.parse(getCardData);
+
+  cards.map((cardObject)=>{
+
+    taskContainer.insertAdjacentHTML("beforeend",generateCard(cardObject));
+    AllData.push(cardObject);
+
+  })
+}
+
+function addData()
+{
+    const taskData={
+        id:`${Date.now()}`,
+        imageurl:document.getElementById("imageurl").value,
+        tasktitle:document.getElementById("tasktitle").value,
+        tasktype:document.getElementById("tasktype").value,
+        taskdescription:document.getElementById("taskdescription").value,
+    };
+
+    
+
+        taskContainer.insertAdjacentHTML("beforeend",generateCard(taskData));
+        AllData.push(taskData);
+        localStorage.setItem("Tasky",JSON.stringify({cards:AllData}));
     
 }
+
+//Page Refresh will erase the added data so use local storage to save the data
+//Use local storage  API that has 5MB of space
