@@ -10,8 +10,8 @@ function generateCard(taskData)
     <div class="col-md-6 col-lg-4" id=${taskData.id}>
               <div class="card">
                 <div class="card-header d-flex justify-content-end gap-2">
-                  <button type="button" class="btn btn-outline-success">
-                    <i class="fas fa-pencil-alt"></i>
+                  <button type="button" class="btn btn-outline-success" id=${taskData.id} onclick="editCard.apply(this,arguments)" >
+                    <i class="fas fa-pencil-alt" id=${taskData.id} onclick="editCard.apply(this,arguments)" ></i>
                   </button>
                   <button type="button" class="btn btn-outline-danger" id=${taskData.id} onclick="deleteCard.apply(this,arguments)">
                     <i class="fas fa-trash" id=${taskData.id} onclick="deleteCard.apply(this,arguments)"></i>
@@ -25,7 +25,7 @@ function generateCard(taskData)
                   <a href="#" class="btn btn-primary">${taskData.tasktype}</a>
                 </div>
                 <div class="card-footer ">
-                  <button type="button" class="btn btn-primary float-end">Open Task</button>
+                  <button type="button" class="btn btn-primary float-end" id=${taskData.id}>Open Task</button>
                 </div>
               </div>
             </div>`
@@ -36,16 +36,16 @@ function generateCard(taskData)
 
 function loadInitialCardData()
 {
-  const getCardData=localStorage.getItem("Tasky");
+    const getCardData=localStorage.getItem("Tasky");
 
-  const {cards}=JSON.parse(getCardData);
+    const {cards}=JSON.parse(getCardData);
 
-  cards.map((cardObject)=>{
+    cards.map((cardObject)=>{
 
-    taskContainer.insertAdjacentHTML("beforeend",generateCard(cardObject));
-    AllData.push(cardObject);
+      taskContainer.insertAdjacentHTML("beforeend",generateCard(cardObject));
+      AllData.push(cardObject);
 
-  })
+    })
 }
 
 function addData()
@@ -88,3 +88,93 @@ function deleteCard(event)
 
 //Page Refresh will erase the added data so use local storage to save the data
 //Use local storage  API that has 5MB of space
+
+const editCard=(event)=>{
+
+      event=window.event;
+      const toEditId=event.target.id;
+      const tag=event.target.tagName;
+
+
+      let parentElement;
+      if(tag === "BUTTON")
+      {
+          parentElement=event.target.parentNode.parentNode;
+
+      }
+      else
+      {
+          parentElement=event.target.parentNode.parentNode.parentNode;
+
+      }
+
+      let tasktitle=parentElement.childNodes[5].childNodes[1];
+      let tasktype=parentElement.childNodes[5].childNodes[5];
+      let taskdescription=parentElement.childNodes[5].childNodes[3];
+      let submitbtn=parentElement.childNodes[7].childNodes[1];
+
+      tasktitle.setAttribute("contenteditable","true");
+      tasktype.setAttribute("contenteditable","true");
+      taskdescription.setAttribute("contenteditable","true")
+      submitbtn.innerHTML="Save Changes"
+      submitbtn.setAttribute(
+        "onclick",
+        "saveChanges.apply(this,arguments)"
+      )
+      
+}
+const saveChanges=(event)=>{
+
+      event=window.event;
+      const toEditId=event.target.id;
+      const tag=event.target.tagName;
+
+
+      let parentElement;
+      if(tag === "BUTTON")
+      {
+          parentElement=event.target.parentNode.parentNode;
+
+      }
+      else
+      {
+          parentElement=event.target.parentNode.parentNode.parentNode;
+
+      }
+
+      let tasktitle=parentElement.childNodes[5].childNodes[1];
+      let tasktype=parentElement.childNodes[5].childNodes[5];
+      let taskdescription=parentElement.childNodes[5].childNodes[3];
+      let submitbtn=parentElement.childNodes[7].childNodes[1];
+
+      const newUpCard={
+
+        
+        tasktitle: tasktitle.innerHTML,
+        tasktype: tasktype.innerHTML ,
+        taskdescription: taskdescription.innerHTML,
+
+
+      }
+
+      AllData=AllData.map((task)=>{
+        if(task.id === toEditId)
+        {
+          return {
+            id:task.id,
+            imageurl:task.imageurl,
+            tasktitle:newUpCard.tasktitle,
+            tasktype:newUpCard.tasktitle,
+            taskdescription:newUpCard.tasktype,
+
+          };
+
+        }
+        return task;
+      });
+
+      localStorage.setItem("Tasky",JSON.stringify({cards:AllData}));
+
+
+
+}
